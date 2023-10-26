@@ -25,6 +25,9 @@ async function updateCustomFilters(host) {
 }
 
 function onConvertedRules(host, event) {
+  if (!event.data.rules || !event.data.errors) {
+    return;
+  }
   if (event.data.errors.length > 0) {
     host.status = event.data.errors.join('\n');
     host.hasError = true;
@@ -43,24 +46,16 @@ export default {
   status: '',
   hasError: false,
   converter: {
-    get() {
-      return document.querySelector('#urlfilter2dnr');
+    get(host) {
+      return host.querySelector('iframe');
     },
     connect(host) {
-      const iframe = document.createElement('iframe');
-      iframe.setAttribute('id', 'urlfilter2dnr');
-      iframe.setAttribute('src', 'https://ghostery.github.io/urlfilter2dnr/');
-      iframe.setAttribute('height', 0);
-      iframe.setAttribute('width', 0);
-      document.body.appendChild(iframe);
-
       const onMessage = onConvertedRules.bind(null, host);
 
       window.addEventListener('message', onMessage);
 
       return () => {
         window.removeEventListener('message', onMessage);
-        iframe.parentElement.removeChild(iframe);
       };
     },
   },
@@ -78,6 +73,10 @@ export default {
   },
   content: ({ filters, status, hasError }) => html`
     <template layout="column gap:3">
+      <iframe
+        layout="hidden"
+        src="https://ghostery.github.io/urlfilter2dnr/"
+      ></iframe>
       <textarea rows="10" oninput="${onTextareaUpdate}">${filters}</textarea>
       <div layout="row gap items:center">
         <ui-button
