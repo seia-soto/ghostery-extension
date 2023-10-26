@@ -10,18 +10,44 @@
  */
 
 import { html } from 'hybrids';
+import { detectFilterType } from '@cliqz/adblocker';
+
+class FilterType {
+  NOT_SUPPORTED = 0;
+  NETWORK = 1;
+  COSMETIC = 2;
+}
 
 async function updateCustomFilters(host) {
   const filters = host.querySelector('textarea').value || '';
+  host.filters = filters;
+
+  const networkFilters = [];
+  const cosmeticFilters = [];
+
+  for (const filter of filters.split('\n')) {
+    const filterType = detectFilterType(filter);
+    switch (filterType) {
+      case FilterType.COSMETIC:
+        cosmeticFilters.push(filter);
+        break;
+      case FilterType.NETWORK:
+        networkFilters.push(filter);
+        break;
+      default:
+        host.hasError = true;
+        host.status = `${host.status}\nFilter not supported: '${filter}'`;
+    }
+  }
+
   host.converter.contentWindow.postMessage(
     {
       action: 'convert',
       converter: 'adguard',
-      filters: filters.split('\n'),
+      filters: networkFilters,
     },
     '*',
   );
-  host.filters = filters;
 }
 
 function onConvertedRules(host, event) {
