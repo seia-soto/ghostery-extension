@@ -12,65 +12,85 @@
 import { html } from 'hybrids';
 import { detectFilterType } from '@cliqz/adblocker';
 
-class FilterType {
-  NOT_SUPPORTED = 0;
-  NETWORK = 1;
-  COSMETIC = 2;
+const filterTypes = {
+  NOT_SUPPORTED: 0,
+  NETWORK: 1,
+  COSMETIC: 2,
+};
+
+class ConversionResult {
+  errors = [];
+  isNetworkConversionReady = false;
+  isCosmeticConversionReady = false;
+
+  get isReady() {
+    return this.isNetworkConversionReady && this.isCosmeticConversionReady;
+  }
 }
 
 async function updateCustomFilters(host) {
   const filters = host.querySelector('textarea').value || '';
-  host.filters = filters;
-
-  const networkFilters = [];
-  const cosmeticFilters = [];
-
-  for (const filter of filters.split('\n')) {
-    const filterType = detectFilterType(filter);
-    switch (filterType) {
-      case FilterType.COSMETIC:
-        cosmeticFilters.push(filter);
-        break;
-      case FilterType.NETWORK:
-        networkFilters.push(filter);
-        break;
-      default:
-        host.hasError = true;
-        host.status = `${host.status}\nFilter not supported: '${filter}'`;
-    }
-  }
-
-  host.converter.contentWindow.postMessage(
-    {
-      action: 'convert',
-      converter: 'adguard',
-      filters: networkFilters,
-    },
-    '*',
-  );
+  host.conversion = filters;
+  return;
 }
 
 function onConvertedRules(host, event) {
+  console.warn('XXXXXadsadas', event.data);
   if (!event.data.rules || !event.data.errors) {
     return;
   }
+  host.conversionResult.isNetworkConversionReady = true;
+  host.conversionResult.errors.push('asdsasadas');
   if (event.data.errors.length > 0) {
-    host.status = event.data.errors.join('\n');
-    host.hasError = true;
-  } else {
-    host.status = 'All filters are correct';
-    host.hasError = false;
+    host.conversionResult.errors.push(...event.data.errors);
   }
 }
 
 function onTextareaUpdate(host) {
-  host.hasError = false;
-  host.status = 'Changes not saved';
+  host.isEditing = true;
 }
 
 export default {
-  status: '',
-  hasError: false,
+  isEditing: false,
+  conversion: {
+    set(host, input = '') {
+      if (!input) {
+        return;
+      }
+      console.warn('XXXX', host, input);
+      host.isEditing = false;
+      host.conversionResult = new ConversionResult();
+
+      const networkFilters = [];
+      const cosmeticFilters = [];
+
+      for (const filter of input.split('\n')) {
+        const filterType = detectFilterType(filter);
+        switch (filterType) {
+          case filterTypes.COSMETIC:
+            cosmeticFilters.push(filter);
+            break;
+          case filterTypes.NETWORK:
+            networkFilters.push(filter);
+            break;
+          default:
+            host.conversionResult.errors.push(
+              `Filter not supported: '${filter}'`,
+            );
+        }
+      }
+      host.conversionResult.isCosmeticConversionReady = true;
+      console.warn('XXXX20')
+      host.converter.contentWindow.postMessage(
+        {
+          action: 'convert',
+          converter: 'adguard',
+          filters: networkFilters,
+        },
+        '*',
+      );
+    },
+  },
   converter: {
     get(host) {
       return host.querySelector('iframe');
@@ -97,7 +117,7 @@ export default {
       localStorage.setItem('filters', value);
     },
   },
-  content: ({ filters, status, hasError }) => html`
+  content: ({ filters, conversionResult, isEditing, conversion }) => html`
     <template layout="column gap:3">
       <iframe
         layout="hidden"
@@ -114,18 +134,25 @@ export default {
           <button>Update</button>
         </ui-button>
         <section layout="row gap items:center">
-          ${hasError
-            ? html`
-                <ul>
-                  ${status.split('\n').map(
-                    (error) =>
-                      html`<li>
-                        <ui-text color="danger-500">${error}</ui-text>
-                      </li>`,
-                  )}
-                </ul>
-              `
-            : html`<span>${status}</span>`}
+          ${isEditing
+            ? html`<span>Changes not saved</span>`
+            : conversion &&
+              html.resolve(
+                conversion
+                  .then((value) => html`<div>${value}</div>`)
+                  .catch(
+                    () => html`
+                      <ul>
+                        ${conversionResult.errors.map(
+                          (error) =>
+                            html`<li>
+                              <ui-text color="danger-500">${error}</ui-text>
+                            </li>`,
+                        )}
+                      </ul>
+                    `,
+                  ),
+              )}
         </section>
       </div>
     </template>
