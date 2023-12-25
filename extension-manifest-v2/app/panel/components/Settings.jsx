@@ -97,6 +97,7 @@ class Settings extends React.Component {
 		return (
 			<CustomBlocking
 				toggleCheckbox={this.toggleCheckbox}
+				selectItem={this.selectItem}
 				settingsData={this.props}
 				actions={actions}
 				showToast={this.showToast}

@@ -122,6 +122,8 @@ class Globals {
 			'site_specific_unblocks',
 			'toggle_individual_trackers',
 			'trackers_banner_status',
+			'custom_filters',
+			'toggle_override_whotracksme_filters',
 		];
 
 		this.ONBOARDED_FEATURES = [

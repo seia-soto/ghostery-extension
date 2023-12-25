@@ -131,6 +131,8 @@ class ConfData {
 			_initProperty('tutorial_complete', false);
 			_initProperty('enable_wtm_serp_report', true);
 			_initProperty('show_redirect_tracking_dialogs', true);
+			_initProperty('custom_filters', '');
+			_initProperty('toggle_override_whotracksme_filters', false);
 
 			// Complex props
 			_initProperty('account', null);

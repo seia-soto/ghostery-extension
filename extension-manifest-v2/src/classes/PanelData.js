@@ -484,7 +484,8 @@ class PanelData {
 			enable_metrics, enable_abtests, hide_alert_trusted,
 			notify_promotions, selected_app_ids, show_alert, show_badge,
 			show_cmp, show_tracker_urls, toggle_individual_trackers, enable_wtm_serp_report,
-			show_redirect_tracking_dialogs
+			show_redirect_tracking_dialogs,
+			custom_filters, toggle_override_whotracksme_filters
 		} = userSettingsSource;
 
 		return {
@@ -505,7 +506,9 @@ class PanelData {
 			show_cmp,
 			show_redirect_tracking_dialogs,
 			show_tracker_urls,
-			toggle_individual_trackers
+			toggle_individual_trackers,
+			custom_filters,
+			toggle_override_whotracksme_filters
 		};
 	}
 
