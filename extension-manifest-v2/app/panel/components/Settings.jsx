@@ -23,6 +23,7 @@ import OptIn from './Settings/OptIn';
 import Purplebox from './Settings/Purplebox';
 import Account from './Settings/Account';
 import DynamicUIPortContext from '../contexts/DynamicUIPortContext';
+import CustomBlocking from './Settings/CustomBlocking';
 /**
  * @class Implement base Settings view which routes navigation to all settings subviews
  * @memberof PanelClasses
@@ -87,6 +88,18 @@ class Settings extends React.Component {
 				showToast={this.showToast}
 				language={language}
 				setup_complete={setup_complete}
+			/>
+		);
+	};
+
+	CustomBlockingComponent = () => {
+		const { actions } = this.props;
+		return (
+			<CustomBlocking
+				toggleCheckbox={this.toggleCheckbox}
+				settingsData={this.props}
+				actions={actions}
+				showToast={this.showToast}
 			/>
 		);
 	};
@@ -222,6 +235,7 @@ class Settings extends React.Component {
 				<div id="content-settings">
 					<SettingsMenu is_expanded={is_expanded} />
 					<Route path="/settings/globalblocking" render={this.GlobalBlockingComponent} />
+					<Route path="/settings/customblocking" render={this.CustomBlockingComponent} />
 					<Route path="/settings/trustandrestrict" render={this.TrustAndRestrictComponent} />
 					<Route path="/settings/generalsettings" render={this.GeneralSettingsComponent} />
 					<Route path="/settings/notifications" render={this.NotificationsComponent} />

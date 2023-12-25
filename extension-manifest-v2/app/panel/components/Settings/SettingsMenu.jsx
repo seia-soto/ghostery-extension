@@ -33,6 +33,11 @@ function SettingsMenu({ is_expanded }) {
 				</NavLink>
 			</li>
 			<li className="s-tabs-title">
+				<NavLink to="/settings/customblocking">
+					<span>Custom Blocking</span>
+				</NavLink>
+			</li>
+			<li className="s-tabs-title">
 				<NavLink to="/settings/trustandrestrict">
 					<span>{ t('settings_trust_and_restrict') }</span>
 				</NavLink>

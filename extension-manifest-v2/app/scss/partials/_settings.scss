@@ -288,6 +288,25 @@
 		}
 	}
 
+	.s-custom-blocking-panel {
+		.s-filters-textarea-box textarea {
+			margin: 0;
+			padding: 4px;
+			font-family: $body-font-family;
+			font-style: normal;
+			font-weight: normal;
+			color: #333333;
+			font-size: 11px;
+			line-height: 15px;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
+			height: 300px;
+			overflow: auto;
+			border: 1px solid #E7ECEE;
+			border-radius: 3px;
+		}
+	}
+
 	#general-settings-panel {
 	  overflow-y: auto;
 	}
