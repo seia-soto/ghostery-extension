@@ -1009,6 +1009,19 @@ function initializeDispatcher() {
 	dispatcher.on('conf.save.enable_ad_block', (enableAdBlock) => {
 		setAdblockerState(enableAdBlock);
 	});
+	// TODO: modulize this function
+	let prevCustomFilters = conf.custom_filters;
+	dispatcher.on('conf.save.custom_filters', (customFilters) => {
+		const added = [customFilters];
+		const removed = [prevCustomFilters];
+
+		common.modules.adblocker.background.adblocker.manager.engine.updateFromDiff({
+			added,
+			removed,
+		});
+
+		prevCustomFilters = customFilters;
+	});
 	dispatcher.on('conf.changed.settings', debounce((key) => {
 		log('Conf value changed for a watched user setting:', key);
 		metrics.setUninstallUrl(key);
