@@ -9,91 +9,97 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0
  */
 
-import { html } from 'hybrids';
+import { html, store } from 'hybrids';
 import { detectFilterType } from '@cliqz/adblocker';
 
-const filterTypes = {
-  NOT_SUPPORTED: 0,
-  NETWORK: 1,
-  COSMETIC: 2,
-};
-
-class ConversionResult {
-  errors = [];
-  isNetworkConversionReady = false;
-  isCosmeticConversionReady = false;
-
-  get isReady() {
-    return this.isNetworkConversionReady && this.isCosmeticConversionReady;
-  }
-}
-
-async function updateCustomFilters(host) {
-  const filters = host.querySelector('textarea').value || '';
-  host.conversion = filters;
-  return;
-}
-
 function onConvertedRules(host, event) {
-  console.warn('XXXXXadsadas', event.data);
   if (!event.data.rules || !event.data.errors) {
     return;
   }
-  host.conversionResult.isNetworkConversionReady = true;
-  host.conversionResult.errors.push('asdsasadas');
+
+  console.log("DNR converstion", event.data)
   if (event.data.errors.length > 0) {
-    host.conversionResult.errors.push(...event.data.errors);
+    // host.conversionResult.errors.push(...event.data.errors);
   }
 }
 
-function onTextareaUpdate(host) {
-  host.isEditing = true;
+function updateCustomFilters(host) {
+  store.submit(host.input);
 }
 
-export default {
-  isEditing: false,
-  conversion: {
-    set(host, input = '') {
-      if (!input) {
-        return;
-      }
-      console.warn('XXXX', host, input);
-      host.isEditing = false;
-      host.conversionResult = new ConversionResult();
-
-      const networkFilters = [];
-      const cosmeticFilters = [];
-
-      for (const filter of input.split('\n')) {
-        const filterType = detectFilterType(filter);
-        switch (filterType) {
-          case filterTypes.COSMETIC:
-            cosmeticFilters.push(filter);
-            break;
-          case filterTypes.NETWORK:
-            networkFilters.push(filter);
-            break;
-          default:
-            host.conversionResult.errors.push(
-              `Filter not supported: '${filter}'`,
-            );
-        }
-      }
-      host.conversionResult.isCosmeticConversionReady = true;
-      console.warn('XXXX20')
-      host.converter.contentWindow.postMessage(
-        {
-          action: 'convert',
-          converter: 'adguard',
-          filters: networkFilters,
-        },
-        '*',
-      );
+const CustomFiltersInput = {
+  id: true,
+  text: '',
+  [store.connect]: {
+    async get() {
+      const storage = await chrome.storage.local.get(['custom-filters-input']);
+      return {
+        text: storage['custom-filters-input'] || '',
+        id: 1,
+      };
+    },
+    async set(_, { text }) {
+      await chrome.storage.local.set({ 'custom-filters-input': text });
+      return { text, id: 1, };
     },
   },
+};
+
+export default {
+  input: store(CustomFiltersInput, { draft: true, id: () => 1 }),
+  errors: { set: (_, values = []) => values },
+  output: async (host) => {
+    const { text } = await store.resolve(host.input);
+    const filters = text.split('\n').map(f => f.trim()).filter(Boolean);
+
+    const output = {
+      networkFilters: [],
+      cosmeticFilters: [],
+      dnrRules: {},
+      errors: [],
+    };
+
+    for (const filter of filters) {
+      const filterType = detectFilterType(filter);
+      switch (filterType) {
+        case 1: // NETWORK
+          output.networkFilters.push(filter);
+          break;
+        case 2: // COSMETIC
+          output.cosmeticFilters.push(filter);
+          break;
+        default:
+          output.errors.push(
+            `Filter not supported: '${filter}'`,
+          );
+      }
+    }
+
+    const { convert } = await host.converter;
+    for (const networkFilter of output.networkFilters) {
+      convert(networkFilter);
+    }
+
+    return output;
+  },
   converter: {
-    get(host) {
-      return host.querySelector('iframe');
+    async get(host) {
+      return new Promise(resolve => {
+        const iframe = host.querySelector('iframe');
+        const convert = (filter) => {
+          iframe.contentWindow.postMessage(
+            {
+              action: 'convert',
+              converter: 'adguard',
+              filters: [filter],
+            },
+            '*',
+          );
+        };
+        iframe.addEventListener('load', () => {
+          resolve({ convert });
+        });
+      })
     },
     connect(host) {
       const onMessage = onConvertedRules.bind(null, host);
@@ -105,25 +111,15 @@ export default {
       };
     },
   },
-  filters: {
-    get() {
-      const filters = localStorage.getItem('filters') || '';
-      return filters;
-    },
-    set(_, value) {
-      if (value === undefined) {
-        return;
-      }
-      localStorage.setItem('filters', value);
-    },
-  },
-  content: ({ filters, conversionResult, isEditing, conversion }) => html`
+  content: ({ input, output }) => html`
     <template layout="column gap:3">
       <iframe
         layout="hidden"
         src="https://ghostery.github.io/urlfilter2dnr/"
       ></iframe>
-      <textarea rows="10" oninput="${onTextareaUpdate}">${filters}</textarea>
+      ${store.ready(input) && html`
+        <textarea rows="10" oninput="${html.set(input, 'text')}">${input.text}</textarea>
+      `}
       <div layout="row gap items:center">
         <ui-button
           size="small"
@@ -133,27 +129,24 @@ export default {
         >
           <button>Update</button>
         </ui-button>
-        <section layout="row gap items:center">
-          ${isEditing
-            ? html`<span>Changes not saved</span>`
-            : conversion &&
-              html.resolve(
-                conversion
-                  .then((value) => html`<div>${value}</div>`)
-                  .catch(
-                    () => html`
-                      <ul>
-                        ${conversionResult.errors.map(
-                          (error) =>
-                            html`<li>
-                              <ui-text color="danger-500">${error}</ui-text>
-                            </li>`,
-                        )}
-                      </ul>
-                    `,
-                  ),
-              )}
-        </section>
+        ${html.resolve(
+          output.then(({ networkFilters, cosmeticFilters, errors }) => html`
+            <section layout="row gap items:center">
+              <ul>
+                ${errors.map(
+                  (error) =>
+                    html`<li>
+                      <ui-text color="danger-500">${error}</ui-text>
+                    </li>`,
+                )}
+              </ul>
+            </section>
+            <section layout="row gap items:center">
+              Network filters: ${networkFilters.length}
+              Cosmetic filters: ${cosmeticFilters.length}
+            </section>
+          `)
+        )}
       </div>
     </template>
   `,
