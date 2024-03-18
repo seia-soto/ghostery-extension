@@ -188,6 +188,12 @@ if (manifest.options_ui?.page) {
   source.push(manifest.options_ui?.page);
 }
 
+if (manifest.devtools_page) {
+  // devtools panel page
+  source.push(manifest.devtools_page);
+  source.push('devtools/panel/index.html');
+}
+
 // content scripts
 manifest.content_scripts?.forEach(({ js = [], css = [] }) => {
   [...js, ...css].forEach((src) => content_scripts.push(src));
@@ -330,8 +336,7 @@ if (argv.watch) {
             };
             break;
           default:
-            settings = { target: 'chromium' };
-            break;
+            return;
         }
 
         webExt.cmd.run({
