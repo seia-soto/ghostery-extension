@@ -14,7 +14,8 @@
     "storage",
     "scripting",
     "tabs",
-    "webRequest"
+    "webRequest",
+    "devtools"
   ],
   "host_permissions": [
     "http://*/*",
@@ -109,7 +110,10 @@
         "pages/onboarding/index.html",
         "pages/onboarding/iframe.html",
         "pages/onboarding/opera-serp.html",
-        "pages/youtube/index.html"
+        "pages/youtube/index.html",
+        "rule_resources/dnr-ads.json",
+        "rule_resources/dnr-annoyances.json",
+        "rule_resources/dnr-tracking.json"
       ],
       "all_frames": true,
       "matches": [

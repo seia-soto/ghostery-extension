@@ -134,6 +134,20 @@ export default {
               ></ui-settings-toggle>
             </div>
           </div>
+          <div layout="row items:start gap:2" layout@768px="gap:5">
+            <div layout="column" layout@768px="row items:center gap:5 grow">
+              <div layout="column grow gap:0.5">
+                <ui-text type="headline-s">Developer mode</ui-text>
+                <ui-text type="body-l" mobile-type="body-m" color="gray-600">
+                  Inspect ad filtering activities on the devtool.
+                </ui-text>
+              </div>
+              <ui-settings-toggle
+                value="${options.enableDevel}"
+                onchange="${html.set(options, 'enableDevel')}"
+              ></ui-settings-toggle>
+            </div>
+          </div>
           <ui-text type="headline-m" mobile-type="headline-s">
             Further Protection
           </ui-text>

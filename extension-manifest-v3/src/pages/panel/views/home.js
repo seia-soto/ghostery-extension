@@ -189,6 +189,12 @@ export default {
               >
                 Never-Consent
               </gh-panel-options-item>
+              <gh-panel-options-item
+                enabled="${options.enableDevel}"
+                terms="${options.terms}"
+              >
+                Developer mode
+              </gh-panel-options-item>
             </a>
           </ui-text>
         </gh-panel-container>

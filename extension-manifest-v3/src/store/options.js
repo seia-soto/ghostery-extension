@@ -29,6 +29,7 @@ export const SYNC_OPTIONS = [
   'wtmSerpReport',
   'serpTrackingPrevention',
   'panel',
+  'enableDevel',
 ];
 
 export const ENGINES = [
@@ -77,6 +78,9 @@ const Options = {
   // Sync
   sync: true,
   revision: 0,
+
+  // Others
+  enableDevel: true,
 
   [store.connect]: {
     async get() {
