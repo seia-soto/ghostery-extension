@@ -14,8 +14,7 @@
     "storage",
     "scripting",
     "tabs",
-    "webRequest",
-    "devtools"
+    "webRequest"
   ],
   "host_permissions": [
     "http://*/*",
@@ -43,6 +42,7 @@
     "service_worker": "background/index.js",
     "type": "module"
   },
+  "devtools_page": "devtools/index.html",
   "declarative_net_request": {
     "rule_resources": [
       {
