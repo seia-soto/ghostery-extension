@@ -10,26 +10,19 @@
  */
 
 import '@ghostery/ui/settings';
-import { define, mount, store } from 'hybrids';
+import { mount, store } from 'hybrids';
 
 import Options from '/store/options.js';
 
-import PanelDisabled from './panel-disabled';
+import List from './views/list.js';
+import Disabled from './views/disabled.js';
 
 // As the user can access settings page from browser native UI
 // we must redirect to onboarding if terms are not accepted
 const { terms } = await store.resolve(Options);
 
 if (terms) {
-  define.from(
-    import.meta.glob('./**/*.js', { eager: true, import: 'default' }),
-    {
-      root: ['components', 'views'],
-      prefix: 'gh-settings',
-    },
-  );
-
-  mount(document.body, PanelDisabled);
+  mount(document.body, List);
 } else {
-  mount(document.body, PanelDisabled);
+  mount(document.body, Disabled);
 }
