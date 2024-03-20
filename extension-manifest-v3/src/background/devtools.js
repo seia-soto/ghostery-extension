@@ -20,6 +20,43 @@ import * as engines from '../utils/engines.js';
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   switch (msg.action) {
+    case 'getDnrRules':
+      (async () => {
+        try {
+          if (!msg.rulePath) {
+            throw new Error('No rule path was given!');
+          }
+
+          const response = await fetch(chrome.runtime.getURL(msg.rulePath));
+          const json = await response.json();
+
+          sendResponse(json);
+        } catch (e) {
+          sendResponse(`Error fetching dnr rules: ${e}`);
+        }
+      })();
+
+      return true;
+
+    case 'testMatchOutcome':
+      (async () => {
+        try {
+          if (!msg.request) {
+            throw new Error('No request details were given!');
+          }
+
+          const matches = await chrome.declarativeNetRequest.testMatchOutcome(
+            msg.request,
+          );
+
+          sendResponse(matches);
+        } catch (e) {
+          sendResponse(`Error testing request: ${e}`);
+        }
+      })();
+
+      return true;
+
     case 'clearStorage':
       (async () => {
         try {
