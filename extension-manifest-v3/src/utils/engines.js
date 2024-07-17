@@ -17,6 +17,10 @@ import {
   mergeDiffs,
   Config,
 } from '@cliqz/adblocker';
+import {
+  EXTENDED_PSEUDO_CLASSES,
+  PSEUDO_CLASSES,
+} from '@cliqz/adblocker-extended-selectors';
 
 import { observe } from '../store/options.js';
 import { registerDatabase } from './indexeddb.js';
@@ -425,7 +429,18 @@ export async function init(name) {
   );
 }
 
-export async function createCustomEngine(filters = '') {
+export async function createCustomEngine(
+  filters = '',
+  experimentalCssPseudoClassHas = false,
+) {
+  if (experimentalCssPseudoClassHas) {
+    EXTENDED_PSEUDO_CLASSES.delete('has');
+    PSEUDO_CLASSES.add('has');
+  } else {
+    EXTENDED_PSEUDO_CLASSES.add('has');
+    PSEUDO_CLASSES.delete('has');
+  }
+
   const engine = parseFilters(filters);
 
   saveToMemory(CUSTOM_ENGINE, engine);

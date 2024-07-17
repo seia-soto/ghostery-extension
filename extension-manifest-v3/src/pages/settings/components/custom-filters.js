@@ -45,6 +45,34 @@ function parseFilters(text = '') {
     );
 }
 
+function isCssPseudoClassHasSupported() {
+  // Check if CSS OM is supported
+  if (typeof CSS !== 'undefined') {
+    return CSS.supports('selector(:has(a))');
+  }
+
+  function getPropertyValue() {
+    return getComputedStyle(document.documentElement).getPropertyValue(
+      '--supports-pseudo-class-has',
+    );
+  }
+
+  let value = getPropertyValue();
+  if (value.length === 0) {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `:root {
+  --supports-pseudo-class-has: 0;
+  @supports selector(:has(a)) {
+    --supports-pseudo-class-has: 0;
+  }
+}`;
+    document.head.appendChild(styleElement);
+    value = getPropertyValue();
+  }
+
+  return value === '1';
+}
+
 async function submitFilters(host) {
   const { networkFilters } = host.filters;
 
@@ -78,6 +106,7 @@ async function submitFilters(host) {
   await chrome.runtime.sendMessage({
     action: 'customFilters:engine',
     filters: host.input.text,
+    experimentalCssPseudoClassHas: isCssPseudoClassHasSupported(),
   });
 
   // Save input

@@ -8,7 +8,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0
  */
-
 import * as engines from '/utils/engines.js';
 
 async function updateDNRRules(dnrRules) {
@@ -35,9 +34,15 @@ async function updateDNRRules(dnrRules) {
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action === 'customFilters:engine') {
-    console.log('filters:', msg.filters);
+    console.log(
+      'filters:',
+      msg.filters,
+      'experimentalCssPseudoClassHas:',
+      msg.experimentalCssPseudoClassHas,
+    );
+
     engines
-      .createCustomEngine(msg.filters)
+      .createCustomEngine(msg.filters, msg.experimentalCssPseudoClassHas)
       .then(() => sendResponse('Engine updated'));
 
     return true;

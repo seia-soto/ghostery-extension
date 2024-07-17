@@ -27,5 +27,8 @@
   "engineStrict": true,
   "engines": {
     "npm": ">=9.6.7"
+  },
+  "dependencies": {
+    "@cliqz/adblocker-extended-selectors": "^1.28.2"
   }
 }
