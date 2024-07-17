@@ -52,9 +52,9 @@ function isCssPseudoClassHasSupported() {
   }
 
   function getPropertyValue() {
-    return getComputedStyle(document.documentElement).getPropertyValue(
-      '--supports-pseudo-class-has',
-    );
+    return getComputedStyle(document.documentElement)
+      .getPropertyValue('--supports-pseudo-class-has')
+      .trim();
   }
 
   let value = getPropertyValue();
@@ -63,7 +63,7 @@ function isCssPseudoClassHasSupported() {
     styleElement.textContent = `:root {
   --supports-pseudo-class-has: 0;
   @supports selector(:has(a)) {
-    --supports-pseudo-class-has: 0;
+    --supports-pseudo-class-has: 1;
   }
 }`;
     document.head.appendChild(styleElement);
