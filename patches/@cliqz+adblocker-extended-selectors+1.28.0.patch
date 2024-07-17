@@ -1,0 +1,22 @@
+diff --git a/node_modules/@cliqz/adblocker-extended-selectors/dist/esm/src/extended.js b/node_modules/@cliqz/adblocker-extended-selectors/dist/esm/src/extended.js
+index b618d90..f26142b 100644
+--- a/node_modules/@cliqz/adblocker-extended-selectors/dist/esm/src/extended.js
++++ b/node_modules/@cliqz/adblocker-extended-selectors/dist/esm/src/extended.js
+@@ -81,6 +81,17 @@ const PSEUDO_CLASSES = new Set([
+     'visited',
+     'where',
+ ]);
++
++// -- has-support
++// The adblocker library changes its structure in v1.28.1
++// This patch is only legit for v1.28.0 and older
++const __isHasSupported = typeof window !== 'undefined' && typeof CSS !== 'undefined' && CSS.supports('selector(:has(a))');
++if (__isHasSupported) {
++  EXTENDED_PSEUDO_CLASSES.delete('has');
++  PSEUDO_CLASSES.add('has');
++}
++// -- has-support end
++
+ // NOTE: here we only need to list the pseudo-elements which can appear with a
+ // single colon (e.g. :after or ::after are valid for backward compatibility
+ // reasons). They can be misinterpreted as pseudo-classes by the tokenizer for
