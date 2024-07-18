@@ -18,8 +18,10 @@ import {
   Config,
 } from '@cliqz/adblocker';
 import {
+  classifySelector,
   EXTENDED_PSEUDO_CLASSES,
   PSEUDO_CLASSES,
+  SelectorType,
 } from '@cliqz/adblocker-extended-selectors';
 
 import { observe } from '../store/options.js';
@@ -401,6 +403,16 @@ export function get(name) {
   return loadFromMemory(name);
 }
 
+function enableExperimentalCssPseudoClassHasSupport() {
+  EXTENDED_PSEUDO_CLASSES.delete('has');
+  PSEUDO_CLASSES.add('has');
+}
+
+function disableExperimentalCssPseudoClassHasSupport() {
+  EXTENDED_PSEUDO_CLASSES.add('has');
+  PSEUDO_CLASSES.delete('has');
+}
+
 const ALARM_PREFIX = 'engines:update:';
 const ALARM_DELAY = 60; // 1 hour
 
@@ -424,9 +436,41 @@ export async function init(name) {
     }
   });
 
-  return (
-    get(name) || (await loadFromStorage(name)) || (await loadFromDisk(name))
-  );
+  /**
+   * @type {FiltersEngine}
+   */
+  const engine =
+    get(name) || (await loadFromStorage(name)) || (await loadFromDisk(name));
+
+  if (engine.config.loadExtendedSelectors === false) {
+    return engine;
+  }
+
+  const reapplications = [];
+  for (const cosmeticFilter of engine.getFilters().cosmeticFilters) {
+    if (!cosmeticFilter.isExtended()) {
+      continue;
+    }
+
+    const selector = cosmeticFilter.getSelector();
+    if (classifySelector(selector) !== SelectorType.Extended) {
+      reapplications.push(selector);
+    }
+  }
+
+  engine.updateFromDiff({
+    removed: reapplications,
+  });
+
+  enableExperimentalCssPseudoClassHasSupport();
+
+  engine.updateFromDiff({
+    added: reapplications,
+  });
+
+  disableExperimentalCssPseudoClassHasSupport();
+
+  return engine;
 }
 
 export async function createCustomEngine(
@@ -434,14 +478,14 @@ export async function createCustomEngine(
   experimentalCssPseudoClassHas = false,
 ) {
   if (experimentalCssPseudoClassHas) {
-    EXTENDED_PSEUDO_CLASSES.delete('has');
-    PSEUDO_CLASSES.add('has');
+    enableExperimentalCssPseudoClassHasSupport();
   } else {
-    EXTENDED_PSEUDO_CLASSES.add('has');
-    PSEUDO_CLASSES.delete('has');
+    disableExperimentalCssPseudoClassHasSupport();
   }
 
   const engine = parseFilters(filters);
+
+  disableExperimentalCssPseudoClassHasSupport();
 
   saveToMemory(CUSTOM_ENGINE, engine);
   saveToStorage(CUSTOM_ENGINE);
