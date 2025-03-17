@@ -13,6 +13,7 @@ export default [
         ...globals.serviceworker,
         ...globals.webextensions,
         __PLATFORM__: 'readonly',
+        __RULE_COUNTS__: 'readonly',
       },
 
       ecmaVersion: 'latest',

@@ -79,7 +79,7 @@ if (argv.staging) {
 
 // --- Download rule resources ---
 
-if (argv.clean) {
+if (argv.clean && false) {
   rmSync(resolve('src', 'rule_resources'), { recursive: true, force: true });
 }
 
@@ -156,7 +156,10 @@ const config = {
   resolve: {
     preserveSymlinks: true,
   },
-  define: { __PLATFORM__: JSON.stringify(argv.target) },
+  define: {
+    __PLATFORM__: JSON.stringify(argv.target),
+    __RULE_COUNTS__: {},
+  },
   build: {
     outDir: options.outDir,
     assetsDir: '',
@@ -220,10 +223,11 @@ if (manifest.storage?.managed_schema) {
 
 // copy declarative net request lists
 if (manifest.declarative_net_request?.rule_resources) {
+  const ruleCounts = {};
   let rulesCount = 0;
 
-  // Add regional DNR rules to Chromium
-  if (argv.target === 'chromium') {
+  // Add regional DNR rules to Chromium and Safari
+  if (argv.target === 'chromium' || argv.target === 'safari') {
     REGIONS.forEach((region) => {
       manifest.declarative_net_request.rule_resources.push({
         id: `lang-${region}`,
@@ -233,34 +237,41 @@ if (manifest.declarative_net_request?.rule_resources) {
     });
   }
 
-  manifest.declarative_net_request.rule_resources.forEach(({ path }) => {
-    const dir = dirname(path);
-    const file = basename(path);
-    const sourcePath = resolve(options.srcDir, path);
-    const destPath = resolve(options.outDir, dir);
-    const outputPath = resolve(destPath, file);
+  manifest.declarative_net_request.rule_resources.forEach(
+    ({ id, enabled, path }) => {
+      const dir = dirname(path);
+      const file = basename(path);
+      const sourcePath = resolve(options.srcDir, path);
+      const destPath = resolve(options.outDir, dir);
+      const outputPath = resolve(destPath, file);
 
-    mkdirSync(destPath, { recursive: true });
+      mkdirSync(destPath, { recursive: true });
 
-    if (argv.target === 'safari') {
-      const list = JSON.parse(readFileSync(sourcePath, 'utf8'))
-        .map((rule) => {
-          try {
-            return convert(rule);
-          } catch {
-            // ignore incompatible rules
-          }
-        })
-        .filter(Boolean);
-      rulesCount += list?.length;
-      writeFileSync(outputPath, JSON.stringify(list));
-      return;
-    }
+      if (argv.target === 'safari') {
+        const list = JSON.parse(readFileSync(sourcePath, 'utf8'))
+          .map((rule) => {
+            try {
+              return convert(rule);
+            } catch {
+              // ignore incompatible rules
+            }
+          })
+          .filter(Boolean);
+        if (enabled === true) {
+          rulesCount += list?.length;
+        }
+        ruleCounts[id] = list?.length;
+        writeFileSync(outputPath, JSON.stringify(list));
+        return;
+      }
 
-    cpSync(sourcePath, outputPath);
-  });
+      cpSync(sourcePath, outputPath);
+    },
+  );
 
   if (argv.target === 'safari') {
+    config.define.__RULE_COUNTS__ = ruleCounts;
+
     console.log('Declarative Net Request rules:', rulesCount);
 
     // https://github.com/WebKit/WebKit/blob/c85962a5c0e929991e5963811da957b75d1501db/Source/WebCore/contentextensions/ContentExtensionCompiler.cpp#L199
