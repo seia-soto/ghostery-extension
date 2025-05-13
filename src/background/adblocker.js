@@ -494,6 +494,10 @@ if (__PLATFORM__ === 'firefox') {
       if (request.sourceHostname && !isTrusted(request, details.type)) {
         const engine = engines.get(engines.MAIN_ENGINE);
 
+        // NOTE: In this pull, fallback is handled from `adblocker` library
+        // please, check the patch file for details.
+        // For MV3-side, this fallback should happen from `urlfilter2dnr` or
+        // server-side which generates dnr rule sets.
         const { redirect, match } = engine.match(request);
 
         if (redirect !== undefined) {
@@ -501,12 +505,12 @@ if (__PLATFORM__ === 'firefox') {
           // extension existence.
           if (
             details.type !== 'xmlhttprequest' &&
-            WEB_ACCESSIBLE_RESOURCES.has(redirect.name)
+            WEB_ACCESSIBLE_RESOURCES.has(redirect.filename)
           ) {
             request.blocked = true;
             result = {
               redirectUrl: chrome.runtime.getURL(
-                'rule_resources/redirects/' + redirect.name,
+                'rule_resources/redirects/' + redirect.filename,
               ),
             };
           } else {

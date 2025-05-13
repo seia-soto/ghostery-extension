@@ -22,7 +22,25 @@ import {
 import { exec, execSync } from 'node:child_process';
 import { build } from 'vite';
 import webExt from 'web-ext';
-
+import {
+  flv,
+  gif,
+  html,
+  ico,
+  jpg,
+  js,
+  json,
+  mp3,
+  mp4,
+  pdf,
+  png,
+  svg,
+  txt,
+  wav,
+  webm,
+  webp,
+  wmv,
+} from '@remusao/small';
 import REGIONS from '../src/utils/regions.js';
 import { convert } from '../src/utils/dnr-converter-safari.js';
 
@@ -285,6 +303,37 @@ for (const file of readdirSync(
   );
 }
 
+// copy stub resources
+const stubResources = [
+  flv,
+  gif,
+  html,
+  ico,
+  jpg,
+  js,
+  json,
+  mp3,
+  mp4,
+  pdf,
+  png,
+  svg,
+  txt,
+  wav,
+  webm,
+  webp,
+  wmv,
+].map((stubResource) => {
+  // The .aliases.[1] is always file extension starting with dot
+  const filename = `ghostery_stub${stubResource.aliases[1]}`;
+  writeFileSync(
+    resolve(options.srcDir, 'rule_resources', 'redirects', filename),
+    stubResource.contentType.endsWith('base64')
+      ? Buffer.from(stubResource.body, 'base64')
+      : stubResource.body,
+  );
+  return filename;
+});
+
 // append web_accessible_resources
 const redirectResources = readdirSync(
   resolve(options.srcDir, 'rule_resources/redirects'),
@@ -299,7 +348,7 @@ if (manifest.manifest_version === 3) {
     use_dynamic_url: true,
   });
 } else {
-  redirectResources.forEach((filename) => {
+  [...redirectResources, ...stubResources].forEach((filename) => {
     manifest.web_accessible_resources.push(
       join('rule_resources/redirects', filename),
     );

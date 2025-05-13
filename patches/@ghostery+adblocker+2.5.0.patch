@@ -1,82 +1,112 @@
 diff --git a/node_modules/@ghostery/adblocker/dist/commonjs/engine/engine.d.ts b/node_modules/@ghostery/adblocker/dist/commonjs/engine/engine.d.ts
-index 13e2633..77ce6f4 100644
+index 13e2633..c05b3fe 100644
 --- a/node_modules/@ghostery/adblocker/dist/commonjs/engine/engine.d.ts
 +++ b/node_modules/@ghostery/adblocker/dist/commonjs/engine/engine.d.ts
 @@ -25,6 +25,7 @@ export declare const ENGINE_VERSION = 731;
  export interface BlockingResponse {
      match: boolean;
      redirect: undefined | {
-+        name: string;
++        filename: string;
          body: string;
          contentType: string;
          dataUrl: string;
 diff --git a/node_modules/@ghostery/adblocker/dist/commonjs/resources.d.ts b/node_modules/@ghostery/adblocker/dist/commonjs/resources.d.ts
-index 0c037a9..0020c9b 100644
+index 0c037a9..a3df2c6 100644
 --- a/node_modules/@ghostery/adblocker/dist/commonjs/resources.d.ts
 +++ b/node_modules/@ghostery/adblocker/dist/commonjs/resources.d.ts
 @@ -43,6 +43,7 @@ export default class Resources {
       */
      updateAliases(): void;
      getResource(name: string): {
-+        name: string;
++        filename: string;
          body: string;
          contentType: string;
          dataUrl: string;
 diff --git a/node_modules/@ghostery/adblocker/dist/commonjs/resources.js b/node_modules/@ghostery/adblocker/dist/commonjs/resources.js
-index b877949..f616c3b 100644
+index b877949..e92c54a 100644
 --- a/node_modules/@ghostery/adblocker/dist/commonjs/resources.js
 +++ b/node_modules/@ghostery/adblocker/dist/commonjs/resources.js
-@@ -229,7 +229,11 @@ class Resources {
+@@ -229,7 +229,17 @@ class Resources {
          }
      }
      getResource(name) {
 -        const { body, contentType } = this.resourcesByName.get(name) || (0, small_1.getResourceForMime)(name);
-+        const resource = this.resourcesByName.get(name) || getResourceForMime(name);
-+        const { contentType, body } = resource;
-+        if ('name' in resource) {
-+            name = resource.name;
++        // EDIT: `getResourceForMime` method actually returns a full object from `small`.
++        // Thus there's `aliases` in the function response.
++        // In later implementations, we want `small` to provide the stub filename here.
++        const { name: resourceName, contentType, body, aliases } = this.resourcesByName.get(name) || getResourceForMime(name);
++        // EDIT: Generate filename on demand. We detect stub resources responded from
++        // `small` by checking the first element of `aliases`.
++        let filename = resourceName;
++        if (aliases[1] !== undefined && aliases[1].startsWith('.')) {
++            // NOTE: This assumption and generation could happen in any layer.
++            filename = `ghostery_stub${aliases[1]}`;
 +        }
          let dataUrl;
          if (contentType.indexOf(';') !== -1) {
              dataUrl = `data:${contentType},${body}`;
+@@ -237,7 +247,7 @@ class Resources {
+         else {
+             dataUrl = `data:${contentType};base64,${btoaPolyfill(body)}`;
+         }
+-        return { body, contentType, dataUrl };
++        return { filename, body, contentType, dataUrl };
+     }
+     getScriptlet(name) {
+         const scriptlet = this.getRawScriptlet(name);
 diff --git a/node_modules/@ghostery/adblocker/dist/esm/engine/engine.d.ts b/node_modules/@ghostery/adblocker/dist/esm/engine/engine.d.ts
-index 13e2633..77ce6f4 100644
+index 13e2633..c05b3fe 100644
 --- a/node_modules/@ghostery/adblocker/dist/esm/engine/engine.d.ts
 +++ b/node_modules/@ghostery/adblocker/dist/esm/engine/engine.d.ts
 @@ -25,6 +25,7 @@ export declare const ENGINE_VERSION = 731;
  export interface BlockingResponse {
      match: boolean;
      redirect: undefined | {
-+        name: string;
++        filename: string;
          body: string;
          contentType: string;
          dataUrl: string;
 diff --git a/node_modules/@ghostery/adblocker/dist/esm/resources.d.ts b/node_modules/@ghostery/adblocker/dist/esm/resources.d.ts
-index 0c037a9..0020c9b 100644
+index 0c037a9..a3df2c6 100644
 --- a/node_modules/@ghostery/adblocker/dist/esm/resources.d.ts
 +++ b/node_modules/@ghostery/adblocker/dist/esm/resources.d.ts
 @@ -43,6 +43,7 @@ export default class Resources {
       */
      updateAliases(): void;
      getResource(name: string): {
-+        name: string;
++        filename: string;
          body: string;
          contentType: string;
          dataUrl: string;
 diff --git a/node_modules/@ghostery/adblocker/dist/esm/resources.js b/node_modules/@ghostery/adblocker/dist/esm/resources.js
-index b9772dd..4aeb14c 100644
+index b9772dd..5fbf7a7 100644
 --- a/node_modules/@ghostery/adblocker/dist/esm/resources.js
 +++ b/node_modules/@ghostery/adblocker/dist/esm/resources.js
-@@ -227,7 +227,11 @@ export default class Resources {
+@@ -227,7 +227,17 @@ export default class Resources {
          }
      }
      getResource(name) {
 -        const { body, contentType } = this.resourcesByName.get(name) || getResourceForMime(name);
-+        const resource = this.resourcesByName.get(name) || getResourceForMime(name);
-+        const { contentType, body } = resource;
-+        if ('name' in resource) {
-+            name = resource.name;
++        // EDIT: `getResourceForMime` method actually returns a full object from `small`.
++        // Thus there's `aliases` in the function response.
++        // In later implementations, we want `small` to provide the stub filename here.
++        const { name: resourceName, contentType, body, aliases } = this.resourcesByName.get(name) || getResourceForMime(name);
++        // EDIT: Generate filename on demand. We detect stub resources responded from
++        // `small` by checking the first element of `aliases`.
++        let filename = resourceName;
++        if (aliases[1] !== undefined && aliases[1].startsWith('.')) {
++            // NOTE: This assumption and generation could happen in any layer.
++            filename = `ghostery_stub${aliases[1]}`;
 +        }
          let dataUrl;
          if (contentType.indexOf(';') !== -1) {
              dataUrl = `data:${contentType},${body}`;
+@@ -235,7 +245,7 @@ export default class Resources {
+         else {
+             dataUrl = `data:${contentType};base64,${btoaPolyfill(body)}`;
+         }
+-        return { body, contentType, dataUrl };
++        return { filename, body, contentType, dataUrl };
+     }
+     getScriptlet(name) {
+         const scriptlet = this.getRawScriptlet(name);
