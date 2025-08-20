@@ -5,6 +5,7 @@
   "short_name": "Ghostery",
   "default_locale": "en",
   "description": "__MSG_manifest_short_description__",
+  "minimum_chrome_version": "120",
   "permissions": [
     "alarms",
     "cookies",
@@ -16,7 +17,8 @@
     "tabs",
     "activeTab",
     "webRequest",
-    "offscreen"
+    "offscreen",
+    "userScripts"
   ],
   "host_permissions": ["http://*/*", "https://*/*", "ws://*/*", "wss://*/*"],
   "icons": {

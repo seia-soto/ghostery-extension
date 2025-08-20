@@ -21,6 +21,7 @@ import Config, {
   FLAG_CHROMIUM_INJECT_COSMETICS_ON_RESPONSE_STARTED,
   FLAG_EXTENDED_SELECTORS,
   FLAG_DYNAMIC_DNR_FIXES,
+  FLAG_USERSCRIPT_SCRIPTLETS,
 } from '/store/config.js';
 import Resources from '/store/resources.js';
 
@@ -90,6 +91,7 @@ async function testConfigFlag(host) {
       FLAG_CHROMIUM_INJECT_COSMETICS_ON_RESPONSE_STARTED,
       FLAG_EXTENDED_SELECTORS,
       FLAG_DYNAMIC_DNR_FIXES,
+      FLAG_USERSCRIPT_SCRIPTLETS,
     ].join(', '),
   );
   if (!flags) return;

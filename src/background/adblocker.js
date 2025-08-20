@@ -31,6 +31,7 @@ import Config, {
   FLAG_FIREFOX_CONTENT_SCRIPT_SCRIPTLETS,
   FLAG_CHROMIUM_INJECT_COSMETICS_ON_RESPONSE_STARTED,
   FLAG_EXTENDED_SELECTORS,
+  FLAG_USERSCRIPT_SCRIPTLETS,
 } from '/store/config.js';
 
 let options = Options;
@@ -101,6 +102,14 @@ store.resolve(Config).then((config) => {
   const enabled = config.hasFlag(FLAG_EXTENDED_SELECTORS);
   ENABLE_EXTENDED_SELECTORS = enabled;
 });
+
+let ENABLE_USERSCRIPT_SCRIPTLETS = false;
+if (__PLATFORM__ !== 'safari') {
+  store.resolve(Config).then((config) => {
+    const enabled = config.hasFlag(FLAG_USERSCRIPT_SCRIPTLETS);
+    ENABLE_USERSCRIPT_SCRIPTLETS = enabled;
+  });
+}
 
 function getEnabledEngines(config) {
   if (config.terms) {
@@ -273,6 +282,19 @@ function injectScriptlets(filters, tabId, frameId, hostname) {
       ENABLE_FIREFOX_CONTENT_SCRIPT_SCRIPTLETS
     ) {
       contentScript += `(${func.toString()})(...${JSON.stringify(args)});\n`;
+      continue;
+    } else if (__PLATFORM__ !== 'safari' && ENABLE_USERSCRIPT_SCRIPTLETS) {
+      chrome.userScripts
+        .execute({
+          injectImmediately: true,
+          world: 'MAIN',
+          target: {
+            tabId,
+            frameIds: [frameId],
+          },
+          js: [{ code: `(${func.toString()})(...${JSON.stringify(args)});\n` }],
+        })
+        .catch((error) => console.error(error));
       continue;
     }
 
