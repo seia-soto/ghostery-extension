@@ -90,6 +90,10 @@ if (argv.target === 'chromium') {
   execSync('node scripts/build-redirect-protection-rules.js', {
     stdio: silent ? '' : 'inherit',
   });
+
+  execSync('node scripts/optimise-dnr-rulesets.js' + (argv.staging ? ' --staging' : ''), {
+    stdio: silent ? '' : 'inherit',
+  });
 }
 
 execSync('node scripts/download-redirect-resources.js' + (argv.staging ? ' --staging' : ''), {
