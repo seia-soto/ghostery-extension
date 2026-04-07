@@ -30,8 +30,6 @@
 		465E3564275520BC0032B8D2 /* GhosteryApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465E356127551D600032B8D2 /* GhosteryApp.swift */; };
 		465E35662755368B0032B8D2 /* Subscriptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465E35652755368B0032B8D2 /* Subscriptions.swift */; };
 		465E35672755368B0032B8D2 /* Subscriptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465E35652755368B0032B8D2 /* Subscriptions.swift */; };
-		465E356E27564A250032B8D2 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 465E356D27564A250032B8D2 /* StoreKit.framework */; };
-		465E357027564A310032B8D2 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 465E356F27564A310032B8D2 /* StoreKit.framework */; };
 		465E357227564A670032B8D2 /* Products.plist in Resources */ = {isa = PBXBuildFile; fileRef = 465E357127564A670032B8D2 /* Products.plist */; };
 		465E357327564A670032B8D2 /* Products.plist in Resources */ = {isa = PBXBuildFile; fileRef = 465E357127564A670032B8D2 /* Products.plist */; };
 		465E357527564ABB0032B8D2 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465E357427564ABB0032B8D2 /* Configuration.swift */; };
@@ -187,9 +185,6 @@
 		465E35442754F6CB0032B8D2 /* WelcomeWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeWebView.swift; sourceTree = "<group>"; };
 		465E356127551D600032B8D2 /* GhosteryApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GhosteryApp.swift; sourceTree = "<group>"; };
 		465E35652755368B0032B8D2 /* Subscriptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscriptions.swift; sourceTree = "<group>"; };
-		465E356B27554CEB0032B8D2 /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Products.storekit; sourceTree = "<group>"; };
-		465E356D27564A250032B8D2 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.0.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
-		465E356F27564A310032B8D2 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		465E357127564A670032B8D2 /* Products.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Products.plist; sourceTree = "<group>"; };
 		465E357427564ABB0032B8D2 /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
 		465E357727564AE80032B8D2 /* StoreHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreHelper.swift; sourceTree = "<group>"; };
@@ -257,7 +252,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				465E3584275673060032B8D2 /* OrderedCollections in Frameworks */,
-				465E356E27564A250032B8D2 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -266,7 +260,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				465E3589275673FB0032B8D2 /* OrderedCollections in Frameworks */,
-				465E357027564A310032B8D2 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -290,8 +283,6 @@
 		465E356C27564A250032B8D2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				465E356F27564A310032B8D2 /* StoreKit.framework */,
-				465E356D27564A250032B8D2 /* StoreKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -301,7 +292,6 @@
 			children = (
 				465E359A275679AC0032B8D2 /* README.md */,
 				465E357127564A670032B8D2 /* Products.plist */,
-				465E356B27554CEB0032B8D2 /* Products.storekit */,
 				465E359E27567A730032B8D2 /* Configuration */,
 				465E357B27564D850032B8D2 /* StoreHelper */,
 				465E3596275679730032B8D2 /* ViewModels */,
@@ -753,7 +743,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/zsh;
-			shellScript = "# go to the root directory\ncd ..\n\n# setup tool-versions managers\ntest -f /opt/homebrew/bin/mise && export PATH=\"/opt/homebrew/bin:$HOME/.local/share/mise/shims:$PATH\"\ntest -f /usr/local/opt/asdf/libexec/asdf.sh && . /usr/local/opt/asdf/libexec/asdf.sh \n\n# run build script\nnpm run build -- --clean\n";
+			shellScript = ". ~/.zprofile\n\n# go to the root directory\ncd ..\n\n# setup tool-versions managers\ntest -f /opt/homebrew/bin/mise && export PATH=\"/opt/homebrew/bin:$HOME/.local/share/mise/shims:$PATH\"\ntest -f /usr/local/opt/asdf/libexec/asdf.sh && . /usr/local/opt/asdf/libexec/asdf.sh \n\n# run build script\nnpm run build -- --clean\n";
 		};
 		B48C697F2B4D84600005A820 /* Build Source */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1022,9 +1012,10 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
+				DEVELOPMENT_TEAM = GURY2GPL39;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Ghostery Privacy Ad Blocker Extension";
+				INFOPLIST_KEY_CFBundleDisplayName = "Ghostery Testing";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1037,7 +1028,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.ghostery.extension.safari;
+				PRODUCT_BUNDLE_IDENTIFIER = io.seia.ghostery.extension.safari;
 				PRODUCT_NAME = "Ghostery Privacy Ad Blocker Extension";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1052,9 +1043,10 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
+				DEVELOPMENT_TEAM = GURY2GPL39;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Ghostery Privacy Ad Blocker Extension";
+				INFOPLIST_KEY_CFBundleDisplayName = "Ghostery Testing";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1067,7 +1059,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.ghostery.extension.safari;
+				PRODUCT_BUNDLE_IDENTIFIER = io.seia.ghostery.extension.safari;
 				PRODUCT_NAME = "Ghostery Privacy Ad Blocker Extension";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1085,9 +1077,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
+				DEVELOPMENT_TEAM = GURY2GPL39;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = Ghostery;
+				INFOPLIST_KEY_CFBundleDisplayName = "Ghostery Testing";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -1105,7 +1099,7 @@
 					"-framework",
 					WebKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.ghostery.extension;
+				PRODUCT_BUNDLE_IDENTIFIER = io.seia.ghostery.extension;
 				PRODUCT_NAME = "Ghostery Privacy Ad Blocker";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1121,9 +1115,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
+				DEVELOPMENT_TEAM = GURY2GPL39;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "iOS (App)/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = Ghostery;
+				INFOPLIST_KEY_CFBundleDisplayName = "Ghostery Testing";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -1141,7 +1137,7 @@
 					"-framework",
 					WebKit,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.ghostery.extension;
+				PRODUCT_BUNDLE_IDENTIFIER = io.seia.ghostery.extension;
 				PRODUCT_NAME = "Ghostery Privacy Ad Blocker";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
